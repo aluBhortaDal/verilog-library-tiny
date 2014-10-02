@@ -1,11 +1,29 @@
+// Author: Tasdiq Ameem
+
+/* 
+IMPORTANT : READ THE COMMENTS BEFORE YOU IMPLEMENT
+
+The rippleCarryAdder(...) module will alow you to add binary numbers
+
+total_sum  = a + b
+where a and b are (n+1) bit binary numbers (0 to nth bit) 
+and total sum is (n+2) bit binary number (0 to (n+1)th bit)
+
+If you are not using any carry in with this, you may 
+ignore and delete the carry_in input from your code.
+
+Other modules in this file are needed to function the top level 
+unlesss otherwise stated. 
+*/
+
 module rippleCarryAdder(a, b, carry_in, total_sum);
+	// Change the value of n to suite your needs
+	input [n:0] a;				// (n+1) bit
+	input [n:0] b;				// (n+1) bit
+	input carry_in;				// initial carry input, bit
+	output [n+1:0] total_sum;	// (n+2) bit, takes care of overflow/carry out
 
-	input [n:0] a;
-	input [n:0] b;
-	input carry_in;				// initial input
-	output [n+1:0] total_sum;
 
-	wire [n:0] carry_out;
 	wire [n:0] carry_wire;				// Cin for each FA except first one.
 	assign  total_sum[n+1] = carry_wire[n];
 
@@ -19,6 +37,7 @@ module rippleCarryAdder(a, b, carry_in, total_sum);
 endmodule
 
 
+// You may integrate this into the next module if you want
 module mux2to1 (x, y, s, f);
 	input x, y, s;
 	output f;
@@ -37,3 +56,4 @@ module bitwise_fullAdder (A, B, Cin, S, Cout);
 	mux2to1 implement_mux(B, Cin, aXORb, Cout);		
 endmodule 
 
+// Hope it helps :)
