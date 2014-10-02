@@ -5,15 +5,19 @@ module rippleCarryAdder(a, b, carry_in, total_sum);
 	input carry_in;				// initial input
 	output [n+1:0] total_sum;
 
-	wire carry_out;
-	wire carry_wire;				// Cin for each FA except first one.
-	assign  total_sum[n+1] = carry_out;
+	wire [n:0] carry_out;
+	wire [n:0] carry_wire;				// Cin for each FA except first one.
+	assign  total_sum[n+1] = carry_wire[n];
 
-	bitwise_fullAdder FA0 (a[0], b[0], carry_in,  )
-
-
-
+	bitwise_fullAdder FA0 (a[0], b[0], carry_in, total_sum[0], carry_wire[0]);
+	bitwise_fullAdder FA1 (a[1], b[1], carry_wire[0], total_sum[1], carry_wire[1]);
+	bitwise_fullAdder FA2 (a[2], b[2], carry_wire[1], total_sum[2], carry_wire[2]);
+//	.		.		.		.
+//	.		.		.		.	Continue till n
+//	.		.		.		.
+	bitwise_fullAdder FA1 (a[n], b[n], carry_wire[n-1], total_sum[n], carry_wire[n]);
 endmodule
+
 
 module mux2to1 (x, y, s, f);
 	input x, y, s;
@@ -24,13 +28,12 @@ endmodule
 
 
 module bitwise_fullAdder (A, B, Cin, S, Cout);
-	
 	input A, B, Cin;
 	output S, Cout;
 	wire aXORb; 					// You can skip this
 	assign aXORb = A ^ B;			// step and plug in directly
 
 	assign S = Cin ^ aXORb;
-	mux2to1(B, Cin, aXORb, Cout);		
+	mux2to1 implement_mux(B, Cin, aXORb, Cout);		
 endmodule 
 
