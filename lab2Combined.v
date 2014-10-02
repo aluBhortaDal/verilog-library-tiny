@@ -44,7 +44,7 @@ module part3(SW, KEY, LEDR, LEDG);
 	always@(*)
 	begin
 		case(KEY)
-			3'b001: LEDG = SW[17:15];
+			3'b000: LEDG = SW[17:15];
 			3'b001: LEDG = SW[14:12];
 			3'b010: LEDG = SW[11:9];
 			3'b011: LEDG = SW[8:6];
@@ -125,6 +125,7 @@ module seven_seg_decoder(input [2:0]c, output [6:0]z);
 endmodule
 ////////////////////////////////////
 
+// Verilog for part 5 below
 module part5 (SW, KEY, LEDR, LEDG, HEX0);
 	input [17:0] SW;
 	input [2:0] KEY; // s2, s1, s0
@@ -149,9 +150,9 @@ module part5 (SW, KEY, LEDR, LEDG, HEX0);
 endmodule
 
 module seven_seg_decoder(input [2:0]c, output [6:0]z);
-	assign z[0] = ~c[2] & ~c[1] ; 
+	assign z[0] = ~c[2] & ~c[1] | ~c[1] & c[0]; 
 	assign z[1] = ~c[2] & c[1] & ~c[0] | c[2] & ~c[1] & c[0]; 
-	assign z[2] = c[2] & ~c[1]; 
+	assign z[2] = c[2] & ~c[1] | ~c[2] & c[1] & ~c[0]; 
 	assign z[3] = ~c[1] & (~c[2] | ~c[0]); 
 	assign z[4] = ~c[2] | ~c[1] & ~c[0]; 
 	assign z[5] = ~c[2] | ~c[1] & ~c[0]; 
