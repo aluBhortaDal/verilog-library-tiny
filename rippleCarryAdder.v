@@ -15,7 +15,7 @@ module rippleCarryAdder(a, b, carry_in, total_sum);
 //	.		.		.		.
 //	.		.		.		.	Continue till n
 //	.		.		.		.
-	bitwise_fullAdder FA1 (a[n], b[n], carry_wire[n-1], total_sum[n], carry_wire[n]);
+	bitwise_fullAdder FAn (a[n], b[n], carry_wire[n-1], total_sum[n], carry_wire[n]);
 endmodule
 
 
