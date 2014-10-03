@@ -149,6 +149,7 @@ module part4 (SW, KEY, LEDR);
 	reg [7:0]LEDR;
 	integer i;
 	integer j;
+	// Use a wire to invert KEY
 	always@(KEY or SW)
 	begin
 		case(KEY)
@@ -159,18 +160,18 @@ module part4 (SW, KEY, LEDR);
 			3'b100: LEDR = SW[15:8] + SW[7:0] + 8'b00000001;
 			3'b101: LEDR = ~(SW[15:8] ^ SW[7:0]);
 			3'b110: begin
-						LEDR = 'b00000000;
+						LEDR = 8'b00000000;
 						for(i= 8; i<16; i= i+1)
-							LEDR = LEDR + ~SW[i];
+							LEDR = LEDR + {~SW[i]};	// {} converts 1bit 1/0 to 8bit 1/0
 					end
 			3'b111: begin
-						LEDR = 'b00000000;
+						LEDR = 8'b00000000;
 						for(i = 0; i < 8; i = i + 1 )		
-							LEDR = LEDR + SW[i];
+							LEDR = LEDR + {SW[i]};	// {} converts 1bit 1/0 to 8bit 1/0
 						for(j= 8; j<16; j= j+1)
-							LEDR = LEDR + ~SW[i];
+							LEDR = LEDR + {~SW[j]};	// {} converts 1bit 1/0 to 8bit 1/0
 					end
-			default: LEDR = 'b00000000;
+			default: LEDR = 8'b00000000;
 		endcase
 	end
 endmodule 
