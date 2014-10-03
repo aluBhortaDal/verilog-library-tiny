@@ -28,26 +28,26 @@ ________________________________________________
 // IMPORTANT:
 // IF YOUR 7 SEG DECODER IS INVERTED, JUST PUT A NOT ON THE WHOLE OUTPUT
 // FOR BEHAVIOURAL LOGIC, FLIP THE OUTPUT STATE
-module binary_to_hex_7segDecoder (num, hex_decoder);
-	input [3:0] num;			// 4 bit binary number
+module binary_to_hex_7segDecoder (n, hex_decoder);
+	input [3:0] n;			// 4 bit binary number
 	output [6:0] hex_decoder;	// to display a single digit of hex number
 
-	assign hex_decoder[0] = (num[0]&num[2]) | (num[0]&(~num[3])) | ((~num[0])&(~num[2])&num[3]) | (num[1]&num[2]&(~num[3])) | ((~num[1])&(~num[2])) | ((~num[1])&num[3]);
-	assign hex_decoder[1] = (num[0]&num[1]&num[3]) | (num[0]&num[2]) | ((~num[0])&num[1]&(~num[3])) | ((~num[0])&(~num[1])&num[3]) | (num[2]&num[3]);
-	assign hex_decoder[2] = ((~num[0])&num[1]) | ((~num[0])&num[2]) | (num[1]&num[2]) | (num[2]&(~num[3])) | ((~num[2])&num[3]);
-	assign hex_decoder[3] = (num[0]&(~num[1])&(~num[2])) | (num[0]&num[2]&num[3]) | ((~num[0])&(~num[1])&num[2]) | ((~num[0])&(~num[2])&num[3]) | (num[1]&(~num[3]));
-	assign hex_decoder[4] = (num[0]&(~num[1])) | (num[0]&num[2]) | ((~num[1])&(~num[3])) | ((~num[2])&(~num[3]));
-	assign hex_decoder[5] = (num[0]&num[1]) | (num[0]&(~num[2])) | (num[1]&(~num[2])&num[3]) | ((~num[1])&(~num[3])) | (num[2]&(~num[3]));
-	assign hex_decoder[6] = (num[0]&(~num[1])) | ((~num[0])&num[2]) | ((~num[0])&(~num[3])) | (num[1]&(~num[2])&num[3]) | (num[2]&(~num[3]));
+	assign hex_decoder[0] = (n[0] & n[2] & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[0]) & n[3]) | (n[1] & n[2]) | (n[1] & (~n[3])) | ((~n[1]) & (~n[2]) & n[3]);
+	assign hex_decoder[1] = (n[0] & n[1] & (~n[3])) | (n[0] & (~n[1]) & n[3]) | ((~n[0]) & (~n[1]) & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[2]) & (~n[3]));
+	assign hex_decoder[2] = (n[0] & (~n[1])) | (n[0] & (~n[2])) | ((~n[1]) & (~n[2])) | (n[2] & (~n[3])) | ((~n[2]) & n[3]);
+	assign hex_decoder[3] = (n[0] & n[1] & (~n[2])) | (n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[1] & n[2]) | ((~n[0]) & (~n[2]) & (~n[3])) | ((~n[1]) & n[3]);
+	assign hex_decoder[4] = ((~n[0]) & n[1]) | ((~n[0]) & (~n[2])) | (n[1] & n[3]) | (n[2] & n[3]);
+	assign hex_decoder[5] = ((~n[0]) & (~n[1])) | ((~n[0]) & n[2]) | (n[1] & n[3]) | ((~n[1]) & n[2] & (~n[3])) | ((~n[2]) & n[3]);
+	assign hex_decoder[6] = (n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[2] & (~n[3])) | (n[1] & (~n[2])) | (n[1] & n[3]) | ((~n[2]) & n[3]);
 endmodule 
 
 
+// IF YOUR 7 SEG DECODER IS INVERTED, FLIP THE OUTPUT STATE (1s to 0s, 0s to 1s)
 module binary_to_hex_7segDecoder_BEHAVIOURAL (num, hex_decoder);
 	input [3:0] num;				// 4 bit binary number
 	output reg [6:0] hex_decoder;	// to display a single digit of hex number
 	always @(*) begin
 		case(num)
-		begin
 			4'b0000: hex_decoder = 7'b0111111;	// 0
 			4'b0001: hex_decoder = 7'b0000110;	// 1
 			4'b0010: hex_decoder = 7'b1011011;	// 2
@@ -65,6 +65,6 @@ module binary_to_hex_7segDecoder_BEHAVIOURAL (num, hex_decoder);
 			4'b1110: hex_decoder = 7'b1111001;	// E
 			4'b1111: hex_decoder = 7'b1110001;	// F
 			default: hex_decoder = 7'b0000000;	// lights off
-		end
+		endcase
 	end	
 endmodule
