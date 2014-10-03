@@ -1,3 +1,6 @@
+// Author: Tasdiq Ameem
+
+
 module part1 (SW, KEY, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);	
 	input [17:0] SW;
 	input [2:0] KEY; // keys
@@ -121,15 +124,16 @@ module fullAdder (A, B, Cin, S, Cout);
 		
 endmodule 
 
+
 //////////////////////////////////
 // part 3 below:
-
 module part3 (SW, LEDR);
 	input [4:1] SW;
 	output LEDR[0];
 
 	assign LEDR[0] = SW[2] & SW[4] | SW[1] & ~SW[2] & ~SW[3] | ~SW[1] & ~SW[2] & SW[3] ;
 endmodule
+
 
 //////////////////////////////////
 // part 4 below:

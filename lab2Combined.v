@@ -1,3 +1,5 @@
+// Author: Tasdiq Ameem
+
 // Verilog for part 1 below 
 module part1 (SW, LEDR);
 	input [17:0] SW;	// toggle switches
