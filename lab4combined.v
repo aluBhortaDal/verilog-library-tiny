@@ -73,13 +73,13 @@ module part3(SW, KEY, HEX0, HEX1, HEX2, HEX3, LEDR);
 	wire [7:0] alubhorta;
 	wire [7:0] B;
 
-	binary_to_hex_7segDecoder Apos1 (A[3:0], HEX0);
-	binary_to_hex_7segDecoder Apos2 (A[7:4], HEX1);
+	binary_to_hex_7segDecoder Apos1 (SW[3:0], HEX0);
+	binary_to_hex_7segDecoder Apos2 (SW[7:4], HEX1);
 	binary_to_hex_7segDecoder Bpos1 (B[3:0], HEX2);
-	binary_to_hex_7segDecoder Bpos2 (A[7:4], HEX3);
+	binary_to_hex_7segDecoder Bpos2 (B[7:4], HEX3);
 
 	D_ff shi_t (alubhorta, KEY[0], SW[11],B);
-	alu_balu alubhaji (SW[7:0], B, SW[8:10], alubhorta);
+	alu alubhaji (SW[7:0], B, SW[10:8], alubhorta);
 endmodule
 
 
@@ -113,7 +113,7 @@ module binary_to_hex_7segDecoder (n, hex_decoder);
 endmodule 
 
 
-module alu_balu (A, B, KEY, LEDR);
+module alu (A, B, KEY, LEDR);
 	//input [15:0] SW;
 	input [7:0] A;
 	input [7:0] B;
@@ -126,7 +126,7 @@ module alu_balu (A, B, KEY, LEDR);
 	integer i;
 	integer j;
 	// Use a wire to invert KEY
-	always@(KEY A or B)
+	always@(KEY or A or B)
 	begin
 		case(KEY)
 			3'b000: LEDR = ~A[7:0] ^ B[7:0];
