@@ -1,7 +1,7 @@
+//Author: Tasdiq Ameem
+
 ////////////////////////////////////////////////////
 // PART 2 BELOW:
-
-
 // Write a Verilog module for the rotating register with parallel load that instantiates eight instances of your
 // Verilog module for Figure 2. This Verilog module should match with the schematic in your lab book. Use
 // SW[7:0] as the inputs DATA_IN[7:0]. Use SW[8] as the RotateRight input, SW[9] as the ASRight input and
@@ -57,8 +57,6 @@ endmodule
 
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
 // PART 3 BELOW:
 
 module part3(SW, KEY, HEX0, HEX1, HEX2, HEX3, LEDR);
@@ -72,6 +70,9 @@ module part3(SW, KEY, HEX0, HEX1, HEX2, HEX3, LEDR);
 
 	wire [7:0] alubhorta;
 	wire [7:0] B;
+
+	assign LEDR[7:0] = B[7:0];
+	assign LEDR[17:10] = alubhorta[7:0];
 
 	binary_to_hex_7segDecoder Apos1 (SW[3:0], HEX0);
 	binary_to_hex_7segDecoder Apos2 (SW[7:4], HEX1);
@@ -114,18 +115,14 @@ endmodule
 
 
 module alu (A, B, KEY, LEDR);
-	//input [15:0] SW;
 	input [7:0] A;
 	input [7:0] B;
 	input [2:0] KEY;
 	output [7:0] LEDR;
 	
-	// SW[15:8] = A[7:0]
-	// SW [7:0]  = B[7:0]
 	reg [7:0]LEDR;
 	integer i;
 	integer j;
-	// Use a wire to invert KEY
 	always@(KEY or A or B)
 	begin
 		case(KEY)
