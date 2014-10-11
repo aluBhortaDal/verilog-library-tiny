@@ -2,39 +2,35 @@
 
 ////////////////////////////////////////////////////
 // PART 2 BELOW:
-// Write a Verilog module for the rotating register with parallel load that instantiates eight instances of your
-// Verilog module for Figure 2. This Verilog module should match with the schematic in your lab book. Use
-// SW[7:0] as the inputs DATA_IN[7:0]. Use SW[8] as the RotateRight input, SW[9] as the ASRight input and
-// SW[10] as the ParallelLoadn input. Use KEY[0] as the clock, but read the important note below about
-// switch bouncing. The outputs Q[7:0] should be displayed on the red LEDs (LEDR[7:0])
 
 module part2 (SW, LEDR, KEY);
 	input [11:0] SW;
 	// 0-7 for DATA_IN[7:0]
 	// 8 for RotateRight
-	// 9 for ASRright -> LEFT
 	// 10 for parallelloadn
-	// 11 for ASLeft -> RIGHT
 	input [0:0] KEY;
 	output [7:0] LEDR;
 
-	subcircuit subC1 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[0], LEDR[0]);
-	subcircuit subC2 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[1], LEDR[1]);
-	subcircuit subC3 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[2], LEDR[2]);
-	subcircuit subC4 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[3], LEDR[3]);
-	subcircuit subC5 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[4], LEDR[4]);
-	subcircuit subC6 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[5], LEDR[5]);
-	subcircuit subC7 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[6], LEDR[6]);
-	subcircuit subC8 (KEY[0], SW[8], SW[10], SW[11], SW[9], SW[7], LEDR[7]);
+	//subcircuit		(clk, 	loadL, loadn, right,  left,  	D, 	  ASRight, 	ASRbit,		Q);
+	subcircuit subC1 (~KEY[0], SW[8], SW[10], LEDR[1], LEDR[7], SW[0], SW[9], LEDR[1],  LEDR[0]);
+	subcircuit subC2 (~KEY[0], SW[8], SW[10], LEDR[2], LEDR[0], SW[1], SW[9], LEDR[2],  LEDR[1]);
+	subcircuit subC3 (~KEY[0], SW[8], SW[10], LEDR[3], LEDR[1], SW[2], SW[9], LEDR[3],  LEDR[2]);
+	subcircuit subC4 (~KEY[0], SW[8], SW[10], LEDR[4], LEDR[2], SW[3], SW[9], LEDR[4],  LEDR[3]);
+	subcircuit subC5 (~KEY[0], SW[8], SW[10], LEDR[5], LEDR[3], SW[4], SW[9], LEDR[5],  LEDR[4]);
+	subcircuit subC6 (~KEY[0], SW[8], SW[10], LEDR[6], LEDR[4], SW[5], SW[9], LEDR[6],  LEDR[5]);
+	subcircuit subC7 (~KEY[0], SW[8], SW[10], LEDR[7], LEDR[5], SW[6], SW[9], LEDR[7],  LEDR[6]);
+	subcircuit subC8 (~KEY[0], SW[8], SW[10], LEDR[0], LEDR[6], SW[7], SW[9], LEDR[7],  LEDR[7]);
 endmodule
 
-module subcircuit(clk, loadL, loadn, right, left,  D, Q);
-	input right, left, loadn, loadL, D, clk;
+module subcircuit(clk, loadL, loadn, right, left,  D, ASRight, ASRbit, Q );
+	input right, left, loadn, loadL, D, clk, ASRight, ASRbit;
 	output Q;
-	wire intermediate, real_D;
+	wire intermediate, real_D, ASRmuxOut;
 
-	mux2to1 mux1(right, left, loadL, intermediate);
+	//			ASRmuxout, left 	....to reverse arithmatic shift
+	mux2to1 mux1(right, ASRmuxOut, loadL, intermediate);
 	mux2to1 mux2(D, intermediate, loadn, real_D);
+	mux2to1 mux3(left, ASRbit, ASRight, ASRmuxOut);
 
 	D_latch latched(clk, real_D, Q);
 endmodule
@@ -74,10 +70,10 @@ module part3(SW, KEY, HEX0, HEX1, HEX2, HEX3, LEDR);
 	assign LEDR[7:0] = B[7:0];
 	assign LEDR[17:10] = alubhorta[7:0];
 
-	binary_to_hex_7segDecoder Apos1 (SW[3:0], HEX0);
-	binary_to_hex_7segDecoder Apos2 (SW[7:4], HEX1);
-	binary_to_hex_7segDecoder Bpos1 (B[3:0], HEX2);
-	binary_to_hex_7segDecoder Bpos2 (B[7:4], HEX3);
+	binary_to_hex_7segDecoder Apos1 (SW[3:0], HEX2);
+	binary_to_hex_7segDecoder Apos2 (SW[7:4], HEX3);
+	binary_to_hex_7segDecoder Bpos1 (B[3:0], HEX0);
+	binary_to_hex_7segDecoder Bpos2 (B[7:4], HEX1);
 
 	D_ff shi_t (alubhorta, KEY[0], SW[11],B);
 	alu alubhaji (SW[7:0], B, SW[10:8], alubhorta);
