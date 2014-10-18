@@ -287,3 +287,81 @@ module seven_seg_display (C, display);
 		endcase
 	end
 endmodule
+
+
+///////////////////////////////////////////////////
+// PART 5 BELOW:
+
+module part5 (SW, KEY, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+	parameter m = 8;
+	input [1:0] KEY;
+	input [m-1:0] SW;
+	output [m:0] LEDR; // = S in the diagram
+	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
+
+	wire [m-1:0] A_store, raw_sum;
+	wire overflow;
+
+	D_flipflop #(m)take_A(SW[m-1:0], KEY[1], KEY[0], A_store);
+	full_adder #(m)add_stuff
+	(
+		.carryin(1'b0),
+		.A(A_store),
+		.B(LEDR[m-1:0]),
+		.sum(raw_sum),
+		.carryout(overflow)
+	);
+	D_flipflop #(m)take_sum(raw_sum, KEY[1], KEY[0],LEDR[m-1:0]);
+	D_flipflop #(1)handle_overflow(overflow, KEY[1], KEY[0], LEDR[8]);
+
+	// DEBUG CODE @ HEX DECODER:
+	binary_to_hex_7segDecoder display2 (A_store[3:0], HEX4);
+	binary_to_hex_7segDecoder display1 (A_store[7:4], HEX5);
+	binary_to_hex_7segDecoder display4 (LEDR[3:0], HEX2);
+	binary_to_hex_7segDecoder display3 (LEDR[7:4], HEX3);
+	binary_to_hex_7segDecoder display6 (raw_sum[3:0], HEX0);
+	binary_to_hex_7segDecoder display5 (raw_sum[7:4], HEX1);	
+endmodule 
+
+
+module D_flipflop(D, clk, resetn, Q);
+	parameter n = 8;
+	input [n-1:0] D;
+	input clk, resetn;
+	output reg [n-1:0] Q;
+	// Asynchronous reset, active low
+	always@(posedge clk or negedge resetn)
+	begin
+		if (!resetn)
+			Q <= 0;
+		else 
+			Q <= D;
+	end 
+endmodule 
+
+
+module full_adder(A, B, sum, carryin, carryout);
+	parameter n = 8;
+	input carryin;
+	input [n-1:0] A, B;
+	output [n-1:0] sum;
+	output carryout;
+
+	assign {carryout, sum} = A + B + carryin;
+endmodule
+
+
+module binary_to_hex_7segDecoder (n, hex_decoder);
+	input [3:0] n;			// 4 bit binary number
+	output [6:0] hex_decoder;	// to display a single digit of hex number
+
+	assign hex_decoder[0] = ~((n[0] & n[2] & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[0]) & n[3]) | (n[1] & n[2]) | (n[1] & (~n[3])) | ((~n[1]) & (~n[2]) & n[3]));
+	assign hex_decoder[1] = ~((n[0] & n[1] & (~n[3])) | (n[0] & (~n[1]) & n[3]) | ((~n[0]) & (~n[1]) & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[2]) & (~n[3])));
+	assign hex_decoder[2] = ~((n[0] & (~n[1])) | (n[0] & (~n[2])) | ((~n[1]) & (~n[2])) | (n[2] & (~n[3])) | ((~n[2]) & n[3]));
+	assign hex_decoder[3] = ~((n[0] & n[1] & (~n[2])) | (n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[1] & n[2]) | ((~n[0]) & (~n[2]) & (~n[3])) | ((~n[1]) & n[3]));
+	assign hex_decoder[4] = ~(((~n[0]) & n[1]) | ((~n[0]) & (~n[2])) | (n[1] & n[3]) | (n[2] & n[3]));
+	assign hex_decoder[5] = ~(((~n[0]) & (~n[1])) | ((~n[0]) & n[2]) | (n[1] & n[3]) | ((~n[1]) & n[2] & (~n[3])) | ((~n[2]) & n[3]));
+	assign hex_decoder[6] = ~((n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[2] & (~n[3])) | (n[1] & (~n[2])) | (n[1] & n[3]) | ((~n[2]) & n[3]));
+endmodule 
+
+
