@@ -14,7 +14,7 @@ module frequency_divider(clk,rst,clk_out) // debug code: , counter);
 	output reg clk_out;	// desired clk 
 
 	// factor = original frequency / (2 x desired frequency) - 1
-	parameter factor = 28'd24990; 
+	parameter factor = 28'd24999; 
 	// keep factor bitsize divisible by 4, just in case you want hex
 	// bitsize = n + n mod 4   ....n + remainder of n/4
 	
@@ -52,7 +52,7 @@ module frequency_divider_special(clk,rst,clk_out) // debug code: , counter);
 	output clk_out;	// desired clk 
 
 	// factor = original frequency / desired frequency 
-	parameter factor = 28'd50000; 
+	parameter factor = 28'd49999; 
 	// keep factor bitsize divisible by 4, just in case you want hex
 	// bitsize = n + n mod 4   ....n + remainder of n/4
 	
