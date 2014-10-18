@@ -1,3 +1,5 @@
+// Author: Tasdiq Ameem
+
 // PART 1 BELOW:
 module part1 (SW, KEY, HEX0 , HEX1);
 	input [1:0] SW; 	// SW[1] for enable, SW[0] for clearN
@@ -42,8 +44,7 @@ module t_flip_flop_with_AND (T, clk, clearn, Q, and_gate);
 			Q=0;
 		else if (T)  
 			Q=~Q;
-//		else 
-//			Q = Q;	
+//		else 	Q = Q;	
 	end 
 endmodule
 
@@ -81,23 +82,79 @@ endmodule
 
 
 // PART 3 BELOW:
-module part3 (SW, KEY, CLOCK_50);
-	input [17:0] SW;
+module part3 (SW, KEY, CLOCK_50, HEX0);
+	input [1:0] SW;
 	input CLOCK_50;
-	input [3:0] KEY; // debug code 
+	input [2:0] KEY;	// key2 for clock debug
+	// key0 clock reset, key1 counter reset
+	// ACTIVE HIGH RESETS
+	output [6:0] HEX0;
 
-// SHIT
-
+	wire new_clk;
+	frequency_divider clock_shit(CLOCK_50, ~KEY[0], SW[1:0], new_clk);
+	counter_actual count_up(new_clk, ~KEY[1], HEX0);
 endmodule 
 
 
-// TO DO
-module counter_actual ();
-	input clk;
-
+module counter_actual (clk, reset, HEX0);
+	input clk, reset;
+	output HEX0;
 	reg [3:0] num;	// wire to 7seg decoder
-	
+
+	// asynchronous reset
+	always @(posedge clk or posedge reset) begin
+		if (reset)
+			num <= 4'b0;
+		else 
+			num <= num + 1;
+	end
+	binary_to_hex_7segDecoder got_this(num[3:0], HEX0);	
 endmodule 
+
+
+module frequency_divider(clk,rst, opcode, clk_out); // debug code: , counter);
+	input clk,rst;
+	input [1:0] opcode;
+	// clk is the original clk
+	output reg clk_out;	// desired clk 
+	parameter n = 28; // #of bitsize of factor and counter
+	parameter full_speed = 28'd0;
+	parameter oneHz		 = 28'd49999999;
+	parameter halfHz	 = 28'd99999999;
+	parameter quarterHz	 = 28'd199999999;
+	
+	reg [n-1:0]factor; 
+	// keep factor bitsize divisible by 4, just in case you want hex	
+	reg [n-1:0]counter;
+// output reg [n-1:0]counter;	// debug code 
+
+	always @(opcode) begin
+		case (opcode)
+// factor = (original frequency / (2 x desired frequency)) - 1
+			2'b00: factor <= full_speed;
+			2'b01: factor <= oneHz;
+			2'b10: factor <= halfHz;
+			2'b11: factor <= quarterHz;
+			default: factor <= full_speed;
+		endcase 
+	end
+
+	always @(posedge clk)
+	begin
+		if(rst)	begin 		// synchronous reset
+			counter <= 28'd0;	// see comment at factor
+//			counter <= 28'd24990;  // debug code
+			clk_out <= 1'b0;
+		end
+		else if(counter==factor)begin
+			counter <= 28'd0;	// see comment at factor
+			clk_out <= ~clk_out;
+		end
+		//	//	//	//
+		else
+		counter <= counter+1;
+	end
+endmodule
 
 
 module binary_to_hex_7segDecoder (n, hex_decoder);
