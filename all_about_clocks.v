@@ -8,13 +8,14 @@
 // This module produces an actual clock 
 // with 50% duty cycle :)
 // Use it as you would use the default clck.
+// Examples for 50 MHz --> 1 Hz
 module frequency_divider(clk,rst,clk_out) // debug code: , counter);
 	input clk,rst;
 	// clk is the original clk
 	output reg clk_out;	// desired clk 
 
 	// factor = original frequency / (2 x desired frequency) - 1
-	parameter factor = 28'd24999; 
+	parameter factor = 28'd24999999; 
 	// keep factor bitsize divisible by 4, just in case you want hex
 	// bitsize = n + n mod 4   ....n + remainder of n/4
 	
@@ -46,13 +47,14 @@ endmodule
 // This module's duty cycle varies. 
 // Always use negedge of this clock 
 // otherwise your clock will mess up
+// Examples for 50 MHz --> 1 Hz
 module frequency_divider_special(clk,rst,clk_out) // debug code: , counter);
 	input clk,rst;
 	// clk is the original clk
 	output clk_out;	// desired clk 
 
 	// factor = original frequency / desired frequency 
-	parameter factor = 28'd49999; 
+	parameter factor = 28'd49999999; 
 	// keep factor bitsize divisible by 4, just in case you want hex
 	// bitsize = n + n mod 4   ....n + remainder of n/4
 	
