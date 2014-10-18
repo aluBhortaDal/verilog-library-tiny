@@ -169,3 +169,121 @@ module binary_to_hex_7segDecoder (n, hex_decoder);
 	assign hex_decoder[5] = ~(((~n[0]) & (~n[1])) | ((~n[0]) & n[2]) | (n[1] & n[3]) | ((~n[1]) & n[2] & (~n[3])) | ((~n[2]) & n[3]));
 	assign hex_decoder[6] = ~((n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[2] & (~n[3])) | (n[1] & (~n[2])) | (n[1] & n[3]) | ((~n[2]) & n[3]));
 endmodule 
+
+
+///////////////////////////////////////////
+// PART4 BELOW:
+module part4 (SW, CLOCK_50, KEY, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);	
+	input [17:0] SW;
+	input [0:0] KEY; // clock debug
+	input CLOCK_50;
+	output [6:0] HEX0; // 7-seg displays
+	output [6:0] HEX1;
+	output [6:0] HEX2;
+	output [6:0] HEX3;
+	output [6:0] HEX4;
+	output [6:0] HEX5;
+
+	parameter char_L = 3'b000;
+	parameter char_E = 3'b001;
+	parameter char_A = 3'b010;
+	parameter char_F = 3'b011;
+	parameter char_6 = 3'b100;
+	parameter char_7 = 3'b101;
+
+	wire [2:0] new_clk, wire_one, wire_two, wire_three, wire_four, wire_five, wire_six;
+	wire clock_1Hz;
+	reg [2:0] opcode;
+
+	// TO DO
+	frequency_divider FIFTYMto1(CLOCK_50, 1'b0, clock_1Hz);
+
+	always @(posedge clock_1Hz) 
+	begin
+		opcode <= opcode + 1;
+	end
+
+
+	// Instantiating 6 multiplexers that would output wires for HEX displays
+	mux_3bit6to1 one 	(char_L, char_E, char_A, char_F, char_6, char_7, opcode, wire_one );
+	mux_3bit6to1 two 	(char_E, char_A, char_F, char_6, char_7, char_L, opcode, wire_two );	
+	mux_3bit6to1 three 	(char_A, char_F, char_6, char_7, char_L, char_E, opcode, wire_three );
+	mux_3bit6to1 four 	(char_F, char_6, char_7, char_L, char_E, char_A, opcode, wire_four );
+	mux_3bit6to1 five 	(char_6, char_7, char_L, char_E, char_A, char_E, opcode, wire_five );
+	mux_3bit6to1 six 	(char_7, char_L, char_E, char_A, char_E, char_7, opcode, wire_six );
+
+	//	display left to right
+	seven_seg_display display_1 (wire_one , HEX5);
+	seven_seg_display display_2 (wire_two , HEX4);
+	seven_seg_display display_3 (wire_three , HEX3);
+	seven_seg_display display_4 (wire_four , HEX2);
+	seven_seg_display display_5 (wire_five , HEX1);	
+	seven_seg_display display_6 (wire_six , HEX0);
+endmodule
+
+
+module frequency_divider(clk,rst,clk_out); // debug code: , counter);
+	input clk,rst;
+	// clk is the original clk
+	output reg clk_out;	// desired clk 
+
+	// factor = original frequency / (2 x desired frequency) - 1
+	parameter factor = 28'd24999999; // 50 MHz --> 1 Hz
+	// keep factor bitsize divisible by 4, just in case you want hex
+	// bitsize = n + n mod 4   ....n + remainder of n/4
+	
+	parameter n = 25; // #of bits required to hold factor
+						// be exact here, no less and no more
+	reg [n-1:0]counter;
+	always @(posedge clk)
+	begin
+		if(rst)	begin 		// synchronous reset
+			counter <= 28'd0;	// see comment at factor
+			clk_out <= 1'b0;
+		end
+		else if(counter==factor)begin
+			counter <= 28'd0;	// see comment at factor
+			clk_out <= ~clk_out;
+		end
+		//	//	//	//
+		else
+		counter <= counter+1;
+	end
+endmodule
+
+
+// implements a 3-bit wide 6-to-1 multiplexer
+module mux_3bit6to1  ( U,V,W,X,Y,Z, opcode, M);
+	input [2:0] U, V,W,X,Y,Z ;
+	input [2:0] opcode; // s2, s1, s0
+	output reg [2:0] M;
+	always@(opcode)
+	begin
+		case(opcode)
+			3'b000: M = U;
+			3'b001: M = V;
+			3'b010: M = W;
+			3'b011: M = X;
+			3'b100: M = Y;
+			3'b101: M = Z;
+			default: M = 3'b111;
+		endcase
+	end
+endmodule 
+
+module seven_seg_display (C, display);
+	input [2:0] C;
+	output reg [6:0] display;
+	always@(C)
+	begin
+		case(C)
+			3'b000: display = 7'b1000111;	// L
+			3'b001: display = 7'b0000110;	// E
+			3'b010: display = 7'b0001000;	// A
+			3'b011: display = 7'b0001110;	// F
+			3'b100: display = 7'b0000010;	// 6
+			3'b101: display = 7'b1111000;	// 7
+			default: display = 7'b1111111;
+		endcase
+	end
+endmodule
