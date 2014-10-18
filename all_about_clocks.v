@@ -9,7 +9,7 @@
 // with 50% duty cycle :)
 // Use it as you would use the default clck.
 // Examples for 50 MHz --> 1 Hz
-module frequency_divider(clk,rst,clk_out) // debug code: , counter);
+module frequency_divider(clk,rst,clk_out); // debug code: , counter);
 	input clk,rst;
 	// clk is the original clk
 	output reg clk_out;	// desired clk 
@@ -48,7 +48,7 @@ endmodule
 // Always use negedge of this clock 
 // otherwise your clock will mess up
 // Examples for 50 MHz --> 1 Hz
-module frequency_divider_special(clk,rst,clk_out) // debug code: , counter);
+module frequency_divider_special(clk,rst,clk_out); // debug code: , counter);
 	input clk,rst;
 	// clk is the original clk
 	output clk_out;	// desired clk 
