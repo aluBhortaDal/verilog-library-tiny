@@ -5,8 +5,8 @@ module part1 (SW, KEY, HEX0 , HEX1);
 	input [1:0] SW; 	// SW[1] for enable, SW[0] for clearN
 	input [0:0] KEY;	// clk input
 	
-	output [7:0] HEX0;
-	output [7:0] HEX1;
+	output [6:0] HEX0;
+	output [6:0] HEX1;
 	
 	wire [7:0] number; 	// 0-3 for HEX0, 4-7 for HEX1
 	wire [7:0] next;	
@@ -61,7 +61,7 @@ module count_you_cunt(clk, Q, Resetn);
 			Q <= 8'b0;
 
 		else 
-			Q <= Q + 1;
+			Q <= Q + 8'h01;
 	end
 endmodule 
 //////////////////////////////////////////////////
@@ -106,7 +106,7 @@ module counter_actual (clk, reset, HEX0);
 		if (reset)
 			num <= 4'b0;
 		else 
-			num <= num + 1;
+			num <= num + 4'b1;
 	end
 	binary_to_hex_7segDecoder got_this(num[3:0], HEX0);	
 endmodule 
@@ -152,7 +152,7 @@ module frequency_divider(clk,rst, opcode, clk_out); // debug code: , counter);
 		end
 		//	//	//	//
 		else
-		counter <= counter+1;
+		counter <= counter+ 28'b1;
 	end
 endmodule
 
@@ -291,7 +291,6 @@ endmodule
 
 ///////////////////////////////////////////////////
 // PART 5 BELOW:
-
 module part5 (SW, KEY, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 	parameter m = 8;
 	input [1:0] KEY;
