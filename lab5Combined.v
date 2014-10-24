@@ -199,18 +199,19 @@ module part4 (SW, CLOCK_50, KEY, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 	frequency_divider FIFTYMto1(CLOCK_50, 1'b0, clock_1Hz);
 
 	always @(posedge clock_1Hz) 
+	// always @(posedge KEY[0]) 	// DEBUG CODE
 	begin
-		opcode <= opcode + 1;
+		opcode <= opcode + 3'b001;
 	end
 
 
 	// Instantiating 6 multiplexers that would output wires for HEX displays
-	mux_3bit6to1 one 	(char_L, char_E, char_A, char_F, char_6, char_7, opcode, wire_one );
-	mux_3bit6to1 two 	(char_E, char_A, char_F, char_6, char_7, char_L, opcode, wire_two );	
-	mux_3bit6to1 three 	(char_A, char_F, char_6, char_7, char_L, char_E, opcode, wire_three );
-	mux_3bit6to1 four 	(char_F, char_6, char_7, char_L, char_E, char_A, opcode, wire_four );
-	mux_3bit6to1 five 	(char_6, char_7, char_L, char_E, char_A, char_E, opcode, wire_five );
-	mux_3bit6to1 six 	(char_7, char_L, char_E, char_A, char_E, char_7, opcode, wire_six );
+	mux_3bit6to1 one 		(char_L, char_E, char_A, char_F, char_6, char_7, opcode, wire_one );
+	mux_3bit6to1 two 		(char_E, char_A, char_F, char_6, char_7, char_L, opcode, wire_two );	
+	mux_3bit6to1 three 		(char_A, char_F, char_6, char_7, char_L, char_E, opcode, wire_three );
+	mux_3bit6to1 four 		(char_F, char_6, char_7, char_L, char_E, char_A, opcode, wire_four );
+	mux_3bit6to1 five 		(char_6, char_7, char_L, char_E, char_A, char_F, opcode, wire_five );
+	mux_3bit6to1 six 		(char_7, char_L, char_E, char_A, char_F, char_6, opcode, wire_six );
 
 	//	display left to right
 	seven_seg_display display_1 (wire_one , HEX5);
@@ -238,16 +239,16 @@ module frequency_divider(clk,rst,clk_out); // debug code: , counter);
 	always @(posedge clk)
 	begin
 		if(rst)	begin 		// synchronous reset
-			counter <= 28'd0;	// see comment at factor
+			counter <= 25'd0;	// see comment at factor
 			clk_out <= 1'b0;
 		end
 		else if(counter==factor)begin
-			counter <= 28'd0;	// see comment at factor
+			counter <= 25'd0;	// see comment at factor
 			clk_out <= ~clk_out;
 		end
 		//	//	//	//
 		else
-		counter <= counter+1;
+		counter <= counter+25'd1;
 	end
 endmodule
 
