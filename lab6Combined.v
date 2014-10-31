@@ -112,12 +112,36 @@ output reg [13:0] coded;
 endmodule 
 
 
+module part4();
+	
+
+
+
+	enable_counter 	EC( .clk(),
+						.resetn(),
+						.ready(),
+						.opcode(),
+						.m()
+						);
+	fsm_stuff		FS( .clk(),
+						.resetn(),
+						.enable(),
+						.dash(),
+						.outs(), 
+						.ready()
+						);
+
+
+endmodule 
+
+
 module enable_counter(clk, resetn, ready, opcode, m);
 	input clk, resetn, ready;
 	input [2:0] opcode;
-	output reg [4:0] length;
 	output reg m;
-	reg [4:0] counter; 
+	reg [4:0] counter;
+	reg [4:0] length;
+
 
 	parameter length_A = 5'd19;
 	parameter length_B = 5'd19;
@@ -127,11 +151,13 @@ module enable_counter(clk, resetn, ready, opcode, m);
 	parameter length_F = 5'd19;
 	parameter length_G = 5'd19;
 
-	always @(posedge ready or posedge resetn) begin
-		if (!resetn) begin
+	always @(ready or posedge resetn) begin
+		if (!resetn ) begin
 			// reset
 			length <= 5'b0;
 		end
+		else if (!ready)
+			length <= length;
 		else begin
 			case(opcode)
 				3'b000: length <= length_A;
@@ -163,10 +189,6 @@ module enable_counter(clk, resetn, ready, opcode, m);
 
 		end
 	end
-
-
-
-
 endmodule 
 
 
