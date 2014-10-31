@@ -112,10 +112,12 @@ output reg [13:0] coded;
 endmodule 
 
 
-module enable_counter(clk, resetn, opcode, m);
-	input clk, resetn;
+module enable_counter(clk, resetn, ready, opcode, m);
+	input clk, resetn, ready;
 	input [2:0] opcode;
-	output reg [4:0] length; 
+	output reg [4:0] length;
+	output reg m;
+	reg [4:0] counter; 
 
 	parameter length_A = 5'd19;
 	parameter length_B = 5'd19;
@@ -125,7 +127,7 @@ module enable_counter(clk, resetn, opcode, m);
 	parameter length_F = 5'd19;
 	parameter length_G = 5'd19;
 
-	always @(posedge clk or posedge resetn) begin
+	always @(posedge ready or posedge resetn) begin
 		if (!resetn) begin
 			// reset
 			length <= 5'b0;
@@ -141,6 +143,24 @@ module enable_counter(clk, resetn, opcode, m);
 				3'b110: length <= length_G;
 				3'b111: length <= length_F;
 			endcase 
+		end
+	end
+
+	always @(posedge clk or posedge resetn) begin
+		if (!resetn) begin
+			// reset
+			counter <= 5'b0;
+			m <= 1; // enable
+		end
+		else begin
+			if (counter != length) begin
+				counter <= counter + 1;
+				m <= 1; 
+			end
+			else begin
+				m <= 0;
+			end
+
 		end
 	end
 
