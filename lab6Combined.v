@@ -2,11 +2,14 @@
 
 
 // PART 1 BELOW:
-module part1 ();
+module part1 (SW, KEY, LEDR, LEDG);
 	input [1:0] SW;
 	input [0:0] KEY; // CLOCK
 	// SW0 = ACTIVE LOW SYNC RESETN 
 	// SW1 = W;
+	output [6:0] LEDR;
+	output [0:0] LEDG;
+
 	wire [6:0] pres_state;
 	wire [6:0] next_state;
 
@@ -18,6 +21,8 @@ module part1 ();
 	assign next_state[5] = (pres_state[3] | pres_state[5] ) & SW[1];
 	assign next_state[6] = (pres_state[4] ) & SW[1];
 
+	assign LEDR[6:0] = pres_state;
+	assign LEDG[0] = pres_state[6];
 
 	seven_parallelLoad_flipflop ff (next_state, KEY[0], SW[0], pres_state);
 endmodule 
