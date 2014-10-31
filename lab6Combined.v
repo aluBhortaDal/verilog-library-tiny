@@ -30,7 +30,7 @@ module part1(SW, KEY, LEDR, LEDG);
 	assign m[5] = (pres[3] | pres[5] ) & SW[1];
 	assign m[6] = (pres[4] ) & SW[1];
 
-assign LEDG[0] = pres[6];
+assign LEDG[0] = pres[6] | pres[5];
 
 
 always@(posedge KEY[0]) begin 
@@ -109,4 +109,95 @@ input [2:0] num;
 output reg [13:0] coded;
 
 
+endmodule 
+
+
+module enable_counter(clk, resetn, opcode, m);
+	input clk, resetn;
+	input [2:0] opcode;
+	output reg [4:0] length; 
+
+	parameter length_A = 5'd19;
+	parameter length_B = 5'd19;
+	parameter length_C = 5'd19;
+	parameter length_D = 5'd19;
+	parameter length_E = 5'd19;
+	parameter length_F = 5'd19;
+	parameter length_G = 5'd19;
+
+	always @(posedge clk or posedge resetn) begin
+		if (!resetn) begin
+			// reset
+			length <= 5'b0;
+		end
+		else begin
+			case(opcode)
+				3'b000: length <= length_A;
+				3'b001: length <= length_B;
+				3'b010: length <= length_C;
+				3'b011: length <= length_D;
+				3'b100: length <= length_E;
+				3'b101: length <= length_F;
+				3'b110: length <= length_G;
+				3'b111: length <= length_F;
+			endcase 
+		end
+	end
+
+
+
+
+endmodule 
+
+
+module fsm_stuff(clk, resetn, enable, dash, outs, ready);
+	input clk, resetn, enable, dash;
+	output outs, ready;
+
+	parameter state_A = 7'b0000001;
+	parameter state_B = 7'b0000010;
+	parameter state_C = 7'b0000100;
+	parameter state_D = 7'b0001000;
+	parameter state_E = 7'b0010000;
+	parameter state_F = 7'b0100000;
+	parameter state_G = 7'b1000000;
+
+	reg [6:0] present_state;	
+	reg [6:0] next_state;
+
+	assign  outs = present_state[3] | present_state[4] | present_state[5] | present_state[6];
+	assign ready = present_state[0] & enable;
+
+	always @(posedge clk) begin
+		if (!resetn) 
+			present_state <= state_A;			
+		else 
+			present_state <= next_state;
+
+		case(present_state)
+			state_A:
+				begin
+					if (!enable)
+						next_state <= state_A;
+					else if (dash)
+						next_state <= state_E;
+					else 
+						next_state <= state_D;
+				end
+			state_B:
+					next_state <= state_A;
+			state_C:
+					next_state <= state_B;
+			state_D:
+					next_state <= state_C;
+			state_E:
+					next_state <= state_F;
+			state_F:
+					next_state <= state_G;
+			state_G:
+					next_state <= state_C;
+			default: 
+				next_state <= state_A;
+		endcase 
+	end
 endmodule 
