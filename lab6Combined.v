@@ -1,43 +1,24 @@
-// Author: Tasdiq Ameem
-
-
-// PART 1 BELOW:
-module part1 (SW, KEY, LEDR, LEDG);
+module part1(SW, KEY, LEDR, LEDG);
 	input [17:0] SW;
 	input [3:0] KEY; // CLOCK
 	// SW0 = ACTIVE LOW SYNC RESETN 
 	// SW1 = W;
-	output [6:0] LEDR;
+	output [17:0] LEDR;
 	output [7:0] LEDG;
 
 	wire [6:0] pres_state;
 	wire [6:0] next_state;
 	
-//	parallelLoad_flipflop ff (next_state[6:0], KEY[0], SW[0], pres_state[6:0]);
-
-//	assign next_state[0] = (pres_state[0] | pres_state[1] | pres_state[4] | pres_state[6]) & ~SW[1];
-//	assign next_state[1] = (pres_state[0] ) & SW[1];
-//	assign next_state[2] = (pres_state[1]  | pres_state[6]) & SW[1];
-//	assign next_state[3] = (pres_state[4] ) & SW[1];
-//	assign next_state[4] = (pres_state[2] | pres_state[3] | pres_state[5]) & ~SW[1];
-//	assign next_state[5] = (pres_state[3] | pres_state[5] ) & SW[1];
-//	assign next_state[6] = (pres_state[4] ) & SW[1];
 	
-//	always@(posedge KEY[0])
-//	begin 
-//		if (!SW[0])
-//			pres_state = 7'b0;
-//		else
-//		pres_state = next_state;
-//	
-//	end 
+//	assign LEDR [16:10] = next_state[6:0];
+	
 
+	subCircuit jj(pres_state, SW[1], next_state);
+	parallelLoad_flipflop ff(next_state[6:0], KEY[0], SW[0], pres_state[6:0]);
+	
+	
 	assign LEDR[6:0] = pres_state[6:0];
 	assign LEDG[0] = pres_state[6];
-
-	subCircuit jj (pres_state, SW[1], next_state);
-	parallelLoad_flipflop ff (next_state[6:0], KEY[0], SW[0], pres_state[6:0]);
-	
 endmodule 
 
 
@@ -66,9 +47,9 @@ module parallelLoad_flipflop(D, clk, resetn, Q);
 	always@(posedge clk)
 	begin
 		if (!resetn)
-			Q <= 7'b0;
+			Q[0] <= 1;
 		else
-			Q <= D;
+			Q[6:0] <= D[6:0];
 	end 
 endmodule 
 
