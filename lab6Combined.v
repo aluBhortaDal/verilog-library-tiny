@@ -15,26 +15,52 @@ module part1 (SW, KEY, LEDR, LEDG);
 	
 //	parallelLoad_flipflop ff (next_state[6:0], KEY[0], SW[0], pres_state[6:0]);
 
-	assign next_state[0] = (pres_state[0] | pres_state[1] | pres_state[4] | pres_state[6]) & ~SW[1];
-	assign next_state[1] = (pres_state[0] ) & SW[1];
-	assign next_state[2] = (pres_state[1]  | pres_state[6]) & SW[1];
-	assign next_state[3] = (pres_state[4] ) & SW[1];
-	assign next_state[4] = (pres_state[2] | pres_state[3] | pres_state[5]) & ~SW[1];
-	assign next_state[5] = (pres_state[3] | pres_state[5] ) & SW[1];
-	assign next_state[6] = (pres_state[4] ) & SW[1];
+//	assign next_state[0] = (pres_state[0] | pres_state[1] | pres_state[4] | pres_state[6]) & ~SW[1];
+//	assign next_state[1] = (pres_state[0] ) & SW[1];
+//	assign next_state[2] = (pres_state[1]  | pres_state[6]) & SW[1];
+//	assign next_state[3] = (pres_state[4] ) & SW[1];
+//	assign next_state[4] = (pres_state[2] | pres_state[3] | pres_state[5]) & ~SW[1];
+//	assign next_state[5] = (pres_state[3] | pres_state[5] ) & SW[1];
+//	assign next_state[6] = (pres_state[4] ) & SW[1];
+	
+//	always@(posedge KEY[0])
+//	begin 
+//		if (!SW[0])
+//			pres_state = 7'b0;
+//		else
+//		pres_state = next_state;
+//	
+//	end 
 
-	assign LEDR[6:0] = SW[6:0];
-//	assign LEDG[0] = pres_state[6];
+	assign LEDR[6:0] = pres_state[6:0];
+	assign LEDG[0] = pres_state[6];
 
+	subCircuit jj (pres_state, SW[1], next_state);
 	parallelLoad_flipflop ff (next_state[6:0], KEY[0], SW[0], pres_state[6:0]);
 	
+endmodule 
+
+
+module subCircuit(pres, W, m );
+
+	input [6:0] pres;
+	input W;
+	output [6:0]m;
+
+	assign m[0] = (pres[0] | pres[1] | pres[4] | pres[6]) & ~W;
+	assign m[1] = (pres[0] ) & W;
+	assign m[2] = (pres[1]  | pres[6]) & W;
+	assign m[3] = (pres[4] ) & W;
+	assign m[4] = (pres[2] | pres[3] | pres[5]) & ~W;
+	assign m[5] = (pres[3] | pres[5] ) & W;
+	assign m[6] = (pres[4] ) & W;
 endmodule 
 
 
 module parallelLoad_flipflop(D, clk, resetn, Q);
 	input [6:0] D;
 	input clk;
-	input resetn;
+	input 	resetn;
 	output reg [6:0] Q;
 
 	always@(posedge clk)
