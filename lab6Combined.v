@@ -243,3 +243,206 @@ module fsm_stuff(clk, resetn, enable, dash, outs, ready);
 		endcase 
 	end
 endmodule 
+
+
+module part4(SW, KEY, LEDR, LEDG);
+	
+	input [2:0] SW; // opcode
+	input [3:0] KEY; // CLOCK is 0, resetn is 1
+	
+	output [17:0] LEDR;
+	output [7:0] LEDG;
+
+
+	wire next_bit_ready, fsm_enable, next_bit;
+	wire [3:0] morse_value;
+	assign LEDR[17] = next_bit_ready;
+	assign LEDR[15] = next_bit;
+	assign LEDR[13] = fsm_enable;
+	assign LEDR [10:7] = morse_value;
+	
+	
+	assign LEDG[3:0] = KEY[3:0];
+	
+	
+		enable_counter EC( .clk(KEY[0]),
+						.resetn(KEY[1]),
+						.loadn(KEY[2]),
+						.ready(next_bit_ready),
+						.opcode(SW[2:0]),
+						.m(fsm_enable),	
+						.morse(morse_value)
+						);
+	
+	circular_shift CS(.clk(KEY[0]), 
+						.P(morse_value), 
+						.loadn(KEY[2]), 
+						.take_this_bit(next_bit)
+						);
+	
+
+
+	fsm_stuff		FS( .clk(KEY[0]),
+						.resetn(KEY[1]),
+						.enable(fsm_enable),
+						.dash(next_bit),
+						.outs(LEDR[1]), 
+						.ready(next_bit_ready)
+						);
+
+
+endmodule 
+
+
+module enable_counter(clk, resetn, loadn, ready, opcode, m, morse);
+	input clk, resetn, ready, loadn;
+	input [2:0] opcode;
+	output m;
+	output reg [3:0] morse;
+	reg [4:0] counter;
+	reg [1:0] length;
+
+	
+	assign m = ~resetn & (counter != length) ;
+
+	parameter length_A = 3'd2;
+	parameter length_B = 3'd4;
+	parameter length_C = 3'd4;
+	parameter length_D = 3'd3;
+	parameter length_E = 3'd1;
+	parameter length_F = 3'd4;
+	parameter length_G = 3'd3;
+	parameter length_H = 3'd4;
+	always @(posedge clk) begin
+	/*	if (!resetn ) begin
+			// reset
+			length <= 3'd0;
+			counter <= 3'd0;
+	//		m <= 1'b1; // enable
+		end
+		else if (!ready) begin 
+			length <= length;
+	//		m <= 1'b0;
+		end 
+		else begin
+			if (loadn) begin // ACTIVE LOW LOAD
+	//		m <= 1'b1;
+			counter <= counter + 1;
+			end */
+			case(opcode)
+				3'b000: begin 
+					length <= length_A;
+					morse <= 4'b0100;
+					end 
+				3'b001: begin
+					length <= length_B;
+					morse <= 4'b1000;
+					end 
+				3'b010: begin 
+					length <= length_C;
+					morse <= 4'b1010;
+					end 
+				3'b011: begin 
+					length <= length_D;
+					morse <= 4'b1000;
+					end 
+				3'b100: begin 
+					length <= length_E;
+					morse <= 4'b0000;
+					end 
+				3'b101: begin 
+					length <= length_F;
+					morse <= 4'b0010;
+					end 
+				3'b110: begin 
+					length <= length_G;
+					morse <= 4'b1100;
+					end 
+				3'b111: begin 
+					length <= length_H;
+					morse <= 4'b0000;
+					end 
+			endcase 
+//		end
+	end
+
+endmodule 
+
+
+module fsm_stuff(clk, resetn, enable, dash, outs, ready);
+	input clk, resetn, enable, dash;
+	output outs, ready;
+
+	parameter state_A = 7'b0000001;
+	parameter state_B = 7'b0000010;
+	parameter state_C = 7'b0000100;
+	parameter state_D = 7'b0001000;
+	parameter state_E = 7'b0010000;
+	parameter state_F = 7'b0100000;
+	parameter state_G = 7'b1000000;
+
+	reg [6:0] present_state;	
+	reg [6:0] next_state;
+
+	assign  outs = present_state[3] | present_state[4] | present_state[5] | present_state[6];
+	assign ready = present_state[0] & enable;
+
+	always @(posedge clk) begin
+		if (!resetn) 
+			present_state <= state_A;			
+		else 
+			present_state <= next_state;
+
+		case(present_state)
+			state_A:
+				begin
+					if (!enable)
+						next_state <= state_A;
+					else if (dash)
+						next_state <= state_E;
+					else 
+						next_state <= state_D;
+				end
+			state_B:
+					next_state <= state_A;
+			state_C:
+					next_state <= state_B;
+			state_D:
+					next_state <= state_C;
+			state_E:
+					next_state <= state_F;
+			state_F:
+					next_state <= state_G;
+			state_G:
+					next_state <= state_C;
+			default: 
+				next_state <= state_A;
+		endcase 
+	end
+endmodule 
+
+
+// Circular shift, shifts at posedge clock
+// assumes unsigned number
+module circular_shift(clk, P, loadn, take_this_bit);
+// [n:0] for (n+1) bits. Replace n value to suit your code
+//	parameter n = 3;
+//	parameter m = 1;
+	
+	input [3:0] P;
+	input clk, loadn;
+	output take_this_bit;
+	reg [3:0] Q;
+	
+	assign take_this_bit = Q[3]; 
+	
+	// shift left, rotate right
+	always @(posedge clk) begin
+		if(loadn) begin 
+			Q <= Q << 1;
+			Q[0] <= Q[3:1];
+		end
+		else 
+			Q <= P;
+	end 
+endmodule 
