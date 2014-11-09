@@ -32,13 +32,13 @@ module binary_to_hex_7segDecoder (n, hex_decoder);
 	input [3:0] n;			// 4 bit binary number
 	output [6:0] hex_decoder;	// to display a single digit of hex number
 
-	assign hex_decoder[0] = (n[0] & n[2] & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[0]) & n[3]) | (n[1] & n[2]) | (n[1] & (~n[3])) | ((~n[1]) & (~n[2]) & n[3]);
-	assign hex_decoder[1] = (n[0] & n[1] & (~n[3])) | (n[0] & (~n[1]) & n[3]) | ((~n[0]) & (~n[1]) & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[2]) & (~n[3]));
-	assign hex_decoder[2] = (n[0] & (~n[1])) | (n[0] & (~n[2])) | ((~n[1]) & (~n[2])) | (n[2] & (~n[3])) | ((~n[2]) & n[3]);
-	assign hex_decoder[3] = (n[0] & n[1] & (~n[2])) | (n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[1] & n[2]) | ((~n[0]) & (~n[2]) & (~n[3])) | ((~n[1]) & n[3]);
-	assign hex_decoder[4] = ((~n[0]) & n[1]) | ((~n[0]) & (~n[2])) | (n[1] & n[3]) | (n[2] & n[3]);
-	assign hex_decoder[5] = ((~n[0]) & (~n[1])) | ((~n[0]) & n[2]) | (n[1] & n[3]) | ((~n[1]) & n[2] & (~n[3])) | ((~n[2]) & n[3]);
-	assign hex_decoder[6] = (n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[2] & (~n[3])) | (n[1] & (~n[2])) | (n[1] & n[3]) | ((~n[2]) & n[3]);
+	assign hex_decoder[0] = ~((n[0] & n[2] & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[0]) & n[3]) | (n[1] & n[2]) | (n[1] & (~n[3])) | ((~n[1]) & (~n[2]) & n[3]));
+	assign hex_decoder[1] = ~((n[0] & n[1] & (~n[3])) | (n[0] & (~n[1]) & n[3]) | ((~n[0]) & (~n[1]) & (~n[3])) | ((~n[0]) & (~n[2])) | ((~n[2]) & (~n[3])));
+	assign hex_decoder[2] = ~((n[0] & (~n[1])) | (n[0] & (~n[2])) | ((~n[1]) & (~n[2])) | (n[2] & (~n[3])) | ((~n[2]) & n[3]));
+	assign hex_decoder[3] = ~((n[0] & n[1] & (~n[2])) | (n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[1] & n[2]) | ((~n[0]) & (~n[2]) & (~n[3])) | ((~n[1]) & n[3]));
+	assign hex_decoder[4] = ~(((~n[0]) & n[1]) | ((~n[0]) & (~n[2])) | (n[1] & n[3]) | (n[2] & n[3]));
+	assign hex_decoder[5] = ~(((~n[0]) & (~n[1])) | ((~n[0]) & n[2]) | (n[1] & n[3]) | ((~n[1]) & n[2] & (~n[3])) | ((~n[2]) & n[3]));
+	assign hex_decoder[6] = ~((n[0] & (~n[1]) & n[2]) | ((~n[0]) & n[2] & (~n[3])) | (n[1] & (~n[2])) | (n[1] & n[3]) | ((~n[2]) & n[3]));
 endmodule 
 
 
@@ -64,6 +64,49 @@ module binary_to_hex_7segDecoder_BEHAVIOURAL (num, hex_decoder);
 			4'b1101: hex_decoder = 7'b1011110;	// d
 			4'b1110: hex_decoder = 7'b1111001;	// E
 			4'b1111: hex_decoder = 7'b1110001;	// F
+			default: hex_decoder = 7'b0000000;	// lights off
+		endcase
+	end	
+endmodule
+
+
+module binary_to_octal(num, hex_decoder);
+	input [2:0] num;
+	output reg [6:0] hex_decoder;
+	always @(*) begin
+		case(num)
+			3'b000: hex_decoder = 7'b0111111;	// 0
+			3'b001: hex_decoder = 7'b0000110;	// 1
+			3'b010: hex_decoder = 7'b1011011;	// 2
+			3'b011: hex_decoder = 7'b1001111;	// 3
+			3'b100: hex_decoder = 7'b1100110;	// 4
+			3'b101: hex_decoder = 7'b1101101;	// 5
+			3'b110: hex_decoder = 7'b1111101;	// 6
+			3'b111: hex_decoder = 7'b0000111;	// 7
+			default: hex_decoder = 7'b0000000;	// lights off
+		endcase
+	end	
+endmodule 
+
+module binary_to_decimal (num, prev_left, prev_mid, hex_decoder);
+	input [3:0] num;				// 4 bit binary number
+	input prev_left, prev_mid; 
+	output reg [6:0] hex_decoder;	// to display a single digit of hex number
+
+	wire carryin;
+	carryin = prev_mid & prev_left;
+	always @(*) begin
+		case(num)
+			4'b0000: hex_decoder = 7'b0111111;	// 0
+			4'b0001: hex_decoder = 7'b0000110;	// 1
+			4'b0010: hex_decoder = 7'b1011011;	// 2
+			4'b0011: hex_decoder = 7'b1001111;	// 3
+			4'b0100: hex_decoder = 7'b1100110;	// 4
+			4'b0101: hex_decoder = 7'b1101101;	// 5
+			4'b0110: hex_decoder = 7'b1111101;	// 6
+			4'b0111: hex_decoder = 7'b0000111;	// 7
+			4'b1000: hex_decoder = 7'b1111111;	// 8
+			4'b1001: hex_decoder = 7'b1101111;	// 9
 			default: hex_decoder = 7'b0000000;	// lights off
 		endcase
 	end	
