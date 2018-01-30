@@ -53,7 +53,7 @@ module frequency_divider_special(clk,rst,clk_out); // debug code: , counter);
 	// clk is the original clk
 	output clk_out;	// desired clk 
 
-	// factor = original frequency / desired frequency 
+	// factor = original frequency / desired frequency -1
 	parameter factor = 28'd49999999; 
 	// keep factor bitsize divisible by 4, just in case you want hex
 	// bitsize = n + n mod 4   ....n + remainder of n/4
@@ -77,7 +77,7 @@ module frequency_divider_special(clk,rst,clk_out); // debug code: , counter);
 	end
 
 	assign clk_out =counter[n-1];	// relays most significant (actual)
-									// bit as the new clock
+					// bit as the new clock [hacks ]
 endmodule
 
 
